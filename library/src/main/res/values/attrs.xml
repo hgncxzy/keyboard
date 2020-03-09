@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="KeyboardEditText">
+        <attr name="password" format="boolean" />
+        <attr name="inputType" format="enum">
+            <enum name="number" value="0" />
+            <enum name="qwerty" value="1" />
+            <enum name="number2" value="2" />
+        </attr>
+    </declare-styleable>
+</resources>

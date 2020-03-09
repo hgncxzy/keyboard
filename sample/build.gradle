@@ -1,0 +1,139 @@
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+    id 'kotlin-android-extensions'
+}
+
+android {
+    compileSdkVersion buildConfig.compileSdk
+
+    defaultConfig {
+        applicationId "com.xzy.keyboard.sample"
+        minSdkVersion buildConfig.minSdk
+        targetSdkVersion buildConfig.targetSdk
+        versionCode buildConfig.version.code
+        versionName buildConfig.version.name
+    }
+
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES.txt'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/notice.txt'
+        exclude 'META-INF/license.txt'
+        exclude 'META-INF/dependencies.txt'
+        exclude 'META-INF/LGPL2.1'
+    }
+
+    lintOptions {
+        // Turns off checks for the issue IDs you specify.
+        disable 'TypographyFractions', 'TypographyQuotes'
+        // Turns on checks for the issue IDs you specify. These checks are in
+        // addition to the default lint checks.
+        enable 'RtlHardcoded', 'RtlCompat', 'RtlEnabled'
+        // To enable checks for only a subset of issue IDs and ignore all others,
+        // list the issue IDs with the 'check' property instead. This property overrides
+        // any issue IDs you enable or disable using the properties above.
+        check 'NewApi', 'InlinedApi'
+        // If set to true, turns off analysis progress reporting by lint.
+        quiet true
+        // if set to true (default), stops the build if errors are found.
+        abortOnError false
+        // if true, only report errors.
+        ignoreWarnings true
+    }
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+        test.java.srcDirs += 'src/test/kotlin'
+        androidTest.java.srcDirs += 'src/androidTest/kotlin'
+    }
+
+    signingConfigs {
+        def keyProps = new Properties()
+
+        debug {
+            keyProps.load(new FileInputStream(rootProject.file('signature/debug-keystore.properties')))
+            storeFile file(keyProps["storeFile"])
+            storePassword keyProps["storePass"]
+            keyAlias keyProps["keyAlias"]
+            keyPassword keyProps["keyPass"]
+        }
+
+        release {
+            keyProps.load(new FileInputStream(rootProject.file('signature/release-keystore.properties')))
+            storeFile file(keyProps["storeFile"])
+            storePassword keyProps["storePass"]
+            keyAlias keyProps["keyAlias"]
+            keyPassword keyProps["keyPass"]
+        }
+    }
+
+    buildTypes {
+        debug {
+            applicationIdSuffix ".debug"
+            signingConfig signingConfigs.debug
+            minifyEnabled false
+            zipAlignEnabled false
+            shrinkResources false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        release {
+            signingConfig signingConfigs.release
+            minifyEnabled true
+            zipAlignEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    flavorDimensions 'tier'
+    productFlavors {
+        dev {
+            dimension 'tier'
+        }
+        instant {
+            dimension 'tier'
+            minSdkVersion buildConfig.instantMinSdk
+        }
+        prod {
+            dimension 'tier'
+        }
+    }
+
+    variantFilter { variant ->
+        def flavorNames = variant.flavors.name
+        def buildTypeNames = variant.buildType.name
+        if ((flavorNames.contains("dev") && buildTypeNames.contains("debug"))
+                || (flavorNames.contains("instant") && buildTypeNames.contains("debug"))
+                || (flavorNames.contains("prod") && buildTypeNames.contains("release"))) {
+            // Gradle ignores any variants that satisfy the conditions above.
+            setIgnore(false)
+        } else {
+            setIgnore(true)
+        }
+    }
+
+    compileOptions {
+        encoding = "UTF-8"
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    applicationVariants.all { variant ->
+        variant.outputs.all { output ->
+            outputFileName = "keyboard-sample-${variant.flavorName}-${variant.buildType.name}.apk"
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation deps.leakcanary
+
+    debugImplementation project(':library')
+    releaseImplementation project(':library')
+}

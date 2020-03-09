@@ -1,0 +1,8 @@
+<resources>
+
+    <!-- 按钮圆角. -->
+    <dimen name="key_button_radius">6dp</dimen>
+    <dimen name="key_text_size">48dp</dimen>
+    <dimen name="key_padding">20dp</dimen>
+    <dimen name="key_shadow_radius">0.0</dimen>
+</resources>

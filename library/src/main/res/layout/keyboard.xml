@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.inputmethodservice.KeyboardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/keyboard_view"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_alignParentBottom="true"
+    android:background="@color/keyboard_bg"
+    android:keyBackground="@drawable/selector_key_background"
+    android:keyTextColor="@color/black_87"
+    android:keyTextSize="@dimen/key_text_size"
+    android:padding="@dimen/key_padding"
+    android:shadowRadius="@dimen/key_shadow_radius"
+    tools:ignore="Overdraw"/>
