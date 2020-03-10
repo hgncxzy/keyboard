@@ -22,8 +22,8 @@ buildscript {
     ext.versions = [
             /* Plugin. */
             plugin    : [
-                    android    : '3.5.0',
-                    ktlint     : '7.2.1',
+                    android: '3.5.0',
+                    ktlint : '7.2.1',
             ],
             /* AndroidX. */
             androidx  : [
@@ -61,9 +61,9 @@ buildscript {
 
     ext.deps = [
             plugin    : [
-                    android    : "com.android.tools.build:gradle:${versions.plugin.android}",
-                    kotlin     : "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin.stdlib}",
-                    ktlint     : "org.jlleitschuh.gradle:ktlint-gradle:${versions.plugin.ktlint}",
+                    android: "com.android.tools.build:gradle:${versions.plugin.android}",
+                    kotlin : "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin.stdlib}",
+                    ktlint : "org.jlleitschuh.gradle:ktlint-gradle:${versions.plugin.ktlint}",
             ],
             kotlin    : [
                     stdlib: "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${versions.kotlin.stdlib}",
@@ -90,6 +90,7 @@ buildscript {
     repositories {
         maven { url mavenUrl.aliyun }
         maven { url mavenUrl.kotlinx }
+        jcenter()
         google()
         gradlePluginPortal()
     }
@@ -98,6 +99,8 @@ buildscript {
         classpath deps.plugin.android
         classpath deps.plugin.kotlin
         classpath deps.plugin.ktlint
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.2'
+        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
