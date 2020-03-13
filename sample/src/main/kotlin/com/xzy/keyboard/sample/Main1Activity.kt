@@ -22,7 +22,7 @@ class Main1Activity : AppCompatActivity() {
     }
 
     override fun onKeyUp(keyCode: Int, event: KeyEvent?): Boolean {
-        Log.i("coen", "up, keyCode = $keyCode")
+        Log.i("xzy", "up, keyCode = $keyCode")
         Toast.makeText(this, "up, keyCode = $keyCode", LENGTH_SHORT)
             .show()
         return super.onKeyUp(keyCode, event)
