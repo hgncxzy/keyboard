@@ -100,117 +100,65 @@ dependencies {
 
 //从这里开始配置
 
-//添加这两行
-apply plugin: 'com.github.dcendents.android-maven'
-apply plugin: 'com.jfrog.bintray'
+// 配置完成后，执行 gradlew generateRelease 在本地生成所需的文件,build/release 文件夹中
+// 将 com 文件夹以下打包成 zip 包，然后在 jcenter 创建新的版本，并上传该 zip 到新创建的版本
+//应用插件 maven
+apply plugin: 'maven'
 
-//项目主页--项目的GitHub地址
-def siteUrl = 'https://github.com/hgncxzy/keyboard'
-//项目的git地址
-def gitUrl = 'https://github.com/hgncxzy/keyboard.git'
+//声明你的包名
+def groupId = 'com.xzy.util'
+//声明模块名称
+def artifactId = 'keyboard'
+//要发布的版本号
+def version = '1.0.2'
 
-//发布到JCenter上的项目名字，compile引用时的第2部分项目名
-def libName = "keyboard"
-//compile引用时的第1部分
-group = "com.xzy.util"
-// 版本号，//compile引用时的最后部分项目名，下次更新是只需要更改版本号即可
-version = "1.0.0"
-//上面配置后上传至JCenter后的编译路径是这样的： compile 'com.xzy.util:keyboard:1.0.0'
+def localReleaseDest = "${buildDir}/release/${version}"
 
-//生成源文件
-task sourcesJar(type: Jar) {
-    from android.sourceSets.main.java.srcDirs
+task androidJavadocs(type: Javadoc) {
+    failOnError = false
+    source = android.sourceSets.main.java.srcDirs
+    ext.androidJar = "${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar"
+    classpath += files(ext.androidJar)
+}
+
+task androidJavadocsJar(type: Jar, dependsOn: androidJavadocs) {
+    classifier = 'javadoc'
+    from androidJavadocs.destinationDir
+}
+
+task androidSourcesJar(type: Jar) {
     classifier = 'sources'
+    from android.sourceSets.main.java.srcDirs
+}
+//Maven本地仓库构建
+uploadArchives {
+    repositories.mavenDeployer {
+        pom.groupId = groupId
+        pom.artifactId = artifactId
+        pom.version = version
+        // Add other pom properties here if you want (developer details / licenses)
+        repository(url: "file://${localReleaseDest}")
+    }
+}
+//压缩为zip
+task zipRelease(type: Zip) {
+    from localReleaseDest
+    destinationDir buildDir
+    archiveName "release-${version}.zip"
+}
+//输出到本地补录，位于你的模块中的build下
+task generateRelease {
+    doLast {
+        println "Release ${version} can be found at ${localReleaseDest}/"
+        //注意此处，Windows系统需要加入\\转义符，Mac请去掉转义符"\\"
+        println "Release ${version} zipped can be found ${buildDir}\\release-${version}.zip"
+    }
 }
 
-//生成Javadoc文档
-//task javadoc(type: Javadoc) {
-//    source = android.sourceSets.main.java.srcDirs
-//    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-//}
+generateRelease.dependsOn(uploadArchives)
+generateRelease.dependsOn(zipRelease)
 
-//文档打包成jar
-//task javadocJar(type: Jar, dependsOn: javadoc) {
-//    classifier = 'javadoc'
-//    from javadoc.destinationDir
-//}
-
-//拷贝javadoc文件
-//task copyDoc(type: Copy) {
-//    from "${buildDir}/docs/"
-//    into "docs"
-//}
-
-//上传到JCenter所需要的源码文件
 artifacts {
-//    archives javadocJar
-    archives sourcesJar
+    archives androidSourcesJar
+    archives androidJavadocsJar
 }
-
-// 配置maven库，生成POM.xml文件
-install {
-    repositories.mavenInstaller {
-        // This generates POM.xml with proper parameters
-        pom {
-            project {
-                packaging 'aar'
-                //项目描述，自由填写
-                name 'Keyboard on Android'
-                url siteUrl
-                licenses {
-                    license {
-                        //开源协议
-                        name 'The Apache Software License, Version 2.0'
-                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                    }
-                }
-                developers {
-                    developer {
-                        //开发者的个人信息，根据个人信息填写
-                        id 'hgncxzy'
-                        name 'arthinking'
-                        email 'hgncxzy@gmail.com'
-                    }
-                }
-                scm {
-                    connection gitUrl
-                    developerConnection gitUrl
-                    url siteUrl
-                }
-            }
-        }
-    }
-}
-
-//上传到JCenter
-Properties properties = new Properties()
-properties.load(project.rootProject.file('local.properties').newDataInputStream())
-
-bintray {
-    user = properties.getProperty("bintray.user")    //读取 local.properties 文件里面的 bintray.user
-    key = properties.getProperty("bintray.apikey")   //读取 local.properties 文件里面的 bintray.apikey
-    configurations = ['archives']
-    pkg {
-        //这里的repo值必须要和你创建Maven仓库的时候的名字一样，我们前面创建的就是maven
-        repo = "maven"
-        //发布到JCenter上的项目名字
-        name = libName
-        //项目描述
-        desc = 'Keyboard on Android'
-        websiteUrl = siteUrl
-        vcsUrl = gitUrl
-        licenses = ["Apache-2.0"]
-        publish = true
-    }
-}
-
-//javadoc {
-//    options {
-//        //如果你的项目里面有中文注释的话，必须将格式设置为UTF-8，不然会出现乱码
-//        encoding "UTF-8"
-//        charSet 'UTF-8'
-//        author true
-//        version true
-//        links "http://docs.oracle.com/javase/7/docs/api"
-//    }
-//}

@@ -9,8 +9,8 @@ buildscript {
 
             version      : [
                     major: 1, // 主版本号
-                    minor: 4, // 子版本号
-                    patch: 0, // 修正版本号
+                    minor: 0, // 子版本号
+                    patch: 2, // 修正版本号
             ],
     ]
 
